@@ -1,3 +1,2 @@
-<?php 
-
-?>
+<?php
+echo "halo";
