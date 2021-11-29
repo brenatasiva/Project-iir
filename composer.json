@@ -1,0 +1,9 @@
+{
+    "require": {
+        "php-ai/php-ml": "^0.4.1",
+        "markrogoyski/math-php": "2.*",
+        "spatie/twitter-streaming-api": "^2.0",
+        "j7mbo/twitter-api-php": "^1.0",
+        "abraham/twitteroauth": "^3.1"
+    }
+}

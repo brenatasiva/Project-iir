@@ -1,0 +1,50 @@
+{
+  "name": "redwebcreation/twitter-stream-api",
+  "description": "Consume the Twitter Stream API in real-time.",
+  "keywords": [
+    "redwebcreation",
+    "phirehose-replacement",
+    "phirehose",
+    "php",
+    "twitter",
+    "streaming",
+    "api"
+  ],
+  "type": "library",
+  "homepage": "https://github.com/redwebcreation/phirehose",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Félix Dorn",
+      "email": "github@felixdorn.fr",
+      "homepage": "https://redwebcreation.fr/"
+    }
+  ],
+  "require": {
+    "php": "^8",
+    "guzzlehttp/guzzle": "^7.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "RWC\\TwitterStream\\": "src/"
+    }
+  },
+  "scripts": {
+    "lint": "php-cs-fixer fix -v",
+    "test:unit": "pest",
+    "test:lint": "php-cs-fixer fix -v --dry-run",
+    "test:types": "phpstan analyse --ansi --memory-limit=0",
+    "test": [
+      "@test:lint",
+      "@test:types",
+      "@test:unit"
+    ]
+  },
+  "require-dev": {
+    "symfony/var-dumper": "^5.2",
+    "pestphp/pest": "^1.1",
+    "friendsofphp/php-cs-fixer": "^3",
+    "phpstan/phpstan": "^0.12.85",
+    "vlucas/phpdotenv": "^5.3"
+  }
+}
