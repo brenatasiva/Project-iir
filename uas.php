@@ -76,6 +76,7 @@ foreach ($arrays["statuses"] as $key) {
     $i++;
 }
 
+
 // Step 5: pre process crawled data 
 $vectorizer->transform($tweet);
 $tfIdfTransformer->transform($tweet);
@@ -83,9 +84,15 @@ $tfIdfTransformer->transform($tweet);
 //step 6: analyze sentiment label
 $predictedLabels = $classifier->predict($tweet);
 
+
+for($i = 0; $i < count($data); $i++) {
+    $data[$i]['predictedLabels'] = $predictedLabels[$i];
+}
+
 echo "<pre>";
-print_r($predictedLabels);
+print_r($data);
 echo "</pre>";
+
 
 // $result = array("predictedLabel" => $predictedLabels, "crawl" => $data);
 

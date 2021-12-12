@@ -23,12 +23,22 @@ class Jaccard implements Distance
             throw InvalidArgumentException::arraySizeNotMatch();
         }
 
-        $obs_in_both = count(array_intersect($a, $b));
-        $obs_in_either = count(array_unique(array_merge($a, $b)));
-        $jaccard_similarity = $obs_in_both / $obs_in_either;
-        $jaccard_distance = 1 - $jaccard_similarity;
+        $numerator = 0.0;
+        $denom_wkq = 0.0;
+        $denom_wkj = 0.0;
+        for ($x = 0; $x < count($a); $x++) {
+            $numerator += $b[$x] * $a[$x];
+            $denom_wkq += pow($b[$x], 2);
+            $denom_wkj += pow($a[$x], 2);
+        }
+        if ($denom_wkq == 0.0 && $denom_wkj == 0.0 && $numerator == 0.0) {
+            $result = 0.0;
+        } else {
+            $result = $numerator / ($denom_wkq + $denom_wkj - $numerator);
+        }
 
-        return $jaccard_distance;
+
+        return $result;
 
         // ref: https://www.statology.org/jaccard-similarity/
     }
