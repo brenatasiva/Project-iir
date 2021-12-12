@@ -89,6 +89,7 @@ $predictedLabels = $classifier->predict($tweet);
 // echo "</pre>";
 
 for ($i = 0; $i < count($tweet); $i++) {
+    $predictedLabels[$i] = str_replace('"', "", $predictedLabels[$i]);
     $result[] = array("predictedLabel" => $predictedLabels[$i], "crawl" => $data[$i]);
 }
 echo json_encode($result);

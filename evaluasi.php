@@ -2,6 +2,8 @@
 
 namespace PhpmlExercise;
 
+ini_set('max_execution_time', '3000');
+
 use PhpmlExercise\Classification\SentimentAnalysis;
 use Phpml\Dataset\CsvDataset;
 use Phpml\FeatureExtraction\TokenCountVectorizer;
@@ -14,6 +16,9 @@ use Phpml\Metric\ClassificationReport;
 use Phpml\CrossValidation\RandomSplit;
 use Phpml\Classification\KNearestNeighbors;
 use Phpml\Math\Distance\Euclidean;
+use Phpml\Math\Distance\Dice;
+use Phpml\Math\Distance\Jaccard;
+use Phpml\Math\Distance\Cosine;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -35,9 +40,6 @@ $X_train1 = $split_dataset1->getTrainSamples();
 $y_train1 = $split_dataset1->getTrainLabels();
 $X_test1  = $split_dataset1->getTestSamples();
 $y_test1  = $split_dataset1->getTestLabels();
-// echo "<pre>";
-// print_r($X_test1);
-// echo "</pre>";
 
 // Step 2: Prepare the Dataset
 $vectorizer = new TokenCountVectorizer(new WordTokenizer());
@@ -47,9 +49,9 @@ $vectorizer->transform($sample);
 $tfIdfTransformer = new TfIdfTransformer();
 $tfIdfTransformer->fit($sample);
 $tfIdfTransformer->transform($sample);
+
 // Step 3: Generate the training/testing Dataset
 $dataset = new ArrayDataset($sample, $label);
-
 $split_dataset = new RandomSplit($dataset, 0.2, 1);
 
 $X_train = $split_dataset->getTrainSamples();
@@ -57,21 +59,28 @@ $y_train = $split_dataset->getTrainLabels();
 $X_test  = $split_dataset->getTestSamples();
 $y_test  = $split_dataset->getTestLabels();
 
-$distanceMetric = new Euclidean();
-$classifier = new KNearestNeighbors(3, $distanceMetric);
-$classifier->train($X_train, $y_train);
+//step 4: training
+$distanceMetric = new Dice();
+$classifierDice = new KNearestNeighbors(count($X_train) / 3, $distanceMetric);
+$classifierDice->train($X_train, $y_train);
 
-// Step 5: Test the classifier accuracy 
-$predictedLabels = $classifier->predict($X_test);
+$distanceMetric = new Jaccard();
+$classifierJaccard = new KNearestNeighbors(count($X_train) / 3, $distanceMetric);
+$classifierJaccard->train($X_train, $y_train);
 
+$distanceMetric = new Cosine();
+$classifierCosine = new KNearestNeighbors(count($X_train) / 3, $distanceMetric);
+$classifierCosine->train($X_train, $y_train);
 
-// echo "<pre>";
-// print_r($X_test);
-// echo "</pre>";
+// Step 5: predict 
+$predictedLabelsDice = $classifierDice->predict($X_test);
+$predictedLabelsJaccard = $classifierDice->predict($X_test);
+$predictedLabelsCosine = $classifierDice->predict($X_test);
 
-// echo "<pre>";
-// print_r($predictedLabels);
-// echo "</pre>";
+//step 6: test the model
+$accuracyDice = Accuracy::score($y_test, $predictedLabelsDice) * 100;
+$accuracyJaccard = Accuracy::score($y_test, $predictedLabelsJaccard) * 100;
+$accuracyCosine = Accuracy::score($y_test, $predictedLabelsCosine) * 100;
 
 ?>
 
@@ -96,6 +105,26 @@ $predictedLabels = $classifier->predict($X_test);
 
 </head>
 <style>
+    .loader {
+        border: 16px solid #f3f3f3;
+        /* Light grey */
+        border-top: 16px solid #3498db;
+        /* Blue */
+        border-radius: 50%;
+        width: 120px;
+        height: 120px;
+        animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 </style>
 
 <body>
@@ -120,12 +149,13 @@ $predictedLabels = $classifier->predict($X_test);
     </nav>
     <!-- End of navigation -->
 
+    <div class="loader" id="loader" style="display: none;"></div>
 
-    <!-- result table Euclidean-->
+    <!-- result table Dice-->
     <div class="container">
-        <h1>Euclidean</h1>
-        <h2><?= 'Accuracy: ' . Accuracy::score($y_test, $predictedLabels); ?></h2>
-        <table class="display" id="dataTableEuclidean">
+        <h1>Dice</h1>
+        <h2><?= 'Accuracy: ' . $accuracyDice; ?></h2>
+        <table class="display" id="dataTableDice">
             <thead>
                 <tr>
                     <th scope="col">Tweets</th>
@@ -138,13 +168,13 @@ $predictedLabels = $classifier->predict($X_test);
                 <?php
                 for ($i = 0; $i < count($y_test); $i++) :
                     $y_test[$i] = str_replace('"', "", $y_test[$i]);
-                    $predictedLabels[$i] = str_replace('"', "", $predictedLabels[$i]);
+                    $predictedLabelsDice[$i] = str_replace('"', "", $predictedLabelsDice[$i]);
                 ?>
                     <tr>
                         <td><?= $X_test1[$i]; ?></td>
                         <td><?= ($y_test[$i] == '1') ? "Positive" : (($y_test[$i] == '0') ? "Negative" : "Neutral") ?></td>
-                        <td><?= ($predictedLabels[$i] == '1') ? "Positive" : (($predictedLabels[$i] == '0') ? "Negative" : "Neutral") ?></td>
-                        <td><?= ($predictedLabels[$i] == $y_test[$i]) ? "v" : "x" ?></td>
+                        <td><?= ($predictedLabelsDice[$i] == '1') ? "Positive" : (($predictedLabelsDice[$i] == '0') ? "Negative" : "Neutral") ?></td>
+                        <td><?= ($predictedLabelsDice[$i] == $y_test[$i]) ? "v" : "x" ?></td>
                     </tr>
                 <?php
                 endfor;
@@ -155,6 +185,7 @@ $predictedLabels = $classifier->predict($X_test);
 
         <!-- result table Jaccard-->
         <h1>Jaccard</h1>
+        <h2><?= 'Accuracy: ' . $accuracyJaccard; ?></h2>
         <table class="display" id="dataTableJaccard">
             <thead>
                 <tr>
@@ -165,30 +196,27 @@ $predictedLabels = $classifier->predict($X_test);
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>Otto</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>Otto</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Larry the Bird</td>
-                    <td></td>
-                    <td>Otto</td>
-                </tr>
+                <?php
+                for ($i = 0; $i < count($y_test); $i++) :
+                    $y_test[$i] = str_replace('"', "", $y_test[$i]);
+                    $predictedLabelsJaccard[$i] = str_replace('"', "", $predictedLabelsJaccard[$i]);
+                ?>
+                    <tr>
+                        <td><?= $X_test1[$i]; ?></td>
+                        <td><?= ($y_test[$i] == '1') ? "Positive" : (($y_test[$i] == '0') ? "Negative" : "Neutral") ?></td>
+                        <td><?= ($predictedLabelsJaccard[$i] == '1') ? "Positive" : (($predictedLabelsJaccard[$i] == '0') ? "Negative" : "Neutral") ?></td>
+                        <td><?= ($predictedLabelsJaccard[$i] == $y_test[$i]) ? "v" : "x" ?></td>
+                    </tr>
+                <?php
+                endfor;
+                ?>
             </tbody>
         </table>
         <!-- end of table -->
 
-        <!-- result table cosine-->
+        <!-- result table Cosine-->
         <h1>Cosine</h1>
+        <h2><?= 'Accuracy: ' . $accuracyCosine; ?></h2>
         <table class="display" id="dataTableCosine">
             <thead>
                 <tr>
@@ -199,24 +227,20 @@ $predictedLabels = $classifier->predict($X_test);
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>Mark</td>
-                    <td>Otto</td>
-                    <td>Otto</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>Jacob</td>
-                    <td>Thornton</td>
-                    <td>Otto</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>Larry the Bird</td>
-                    <td></td>
-                    <td>Otto</td>
-                </tr>
+                <?php
+                for ($i = 0; $i < count($y_test); $i++) :
+                    $y_test[$i] = str_replace('"', "", $y_test[$i]);
+                    $predictedLabelsCosine[$i] = str_replace('"', "", $predictedLabelsCosine[$i]);
+                ?>
+                    <tr>
+                        <td><?= $X_test1[$i]; ?></td>
+                        <td><?= ($y_test[$i] == '1') ? "Positive" : (($y_test[$i] == '0') ? "Negative" : "Neutral") ?></td>
+                        <td><?= ($predictedLabelsCosine[$i] == '1') ? "Positive" : (($predictedLabelsCosine[$i] == '0') ? "Negative" : "Neutral") ?></td>
+                        <td><?= ($predictedLabelsCosine[$i] == $y_test[$i]) ? "v" : "x" ?></td>
+                    </tr>
+                <?php
+                endfor;
+                ?>
             </tbody>
         </table>
     </div>
@@ -227,7 +251,8 @@ $predictedLabels = $classifier->predict($X_test);
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $('#dataTableEuclidean').DataTable();
+        $('#loader').hide();
+        $('#dataTableDice').DataTable();
         $('#dataTableJaccard').DataTable();
         $('#dataTableCosine').DataTable();
     });

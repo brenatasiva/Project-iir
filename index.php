@@ -74,15 +74,17 @@
   <div class="container">
     <!-- <form action="uas.php" method="post"> -->
     <div class="input-group mb-3 mx-auto my-5" style="width: 50%;">
+      <h3>Keyword&nbsp&nbsp&nbsp</h3>
       <input type="text" class="form-control" placeholder="Keyword" aria-label="Recipient's username" aria-describedby="button-addon2" id="keyword" name="keyword">
       <button class="btn btn-outline-secondary" type="submit" id="button-addon2" onclick="process()">Search</button>
     </div>
-  </div>
+  </div><br><br>
   <!-- end input keyword -->
 
   <!-- method radio -->
   <div class="container">
     <div class="row justify-content-center">
+      <p>Pilih Metode Similaritas</p>
       <div>
         <div class="form-check">
           <input class="form-check-input" type="radio" name="method" id="exampleRadios1" value="Dice" checked>
@@ -104,12 +106,12 @@
         </div>
       </div>
     </div>
-  </div>
+  </div><br><br>
   <!-- </form> -->
   <!-- end radio -->
   <!-- result table -->
   <div class="container">
-    <table class="display" id="dataTable">
+    <table class="display" id="dataTable" style="display: none;">
       <thead>
         <tr>
           <th scope="col">User</th>
@@ -137,6 +139,10 @@
 </html>
 
 <script type="text/javascript">
+  var negative = 0
+  var neutral = 0
+  var positive = 0
+
   function process() {
     var keyword = document.getElementById("keyword").value;
     var method = document.getElementsByName('method');
@@ -159,47 +165,40 @@
       dataType: 'json',
       success: function(data) {
         $('#loader').hide();
+        $('#dataTable').show();
+        var hasil = ""
         for (var i = 0; i < data.length; i++) {
-          $('#body').append(
-            `<tr>
-            <td>` + data[i]['crawl']['userid'] + `</td>
-            <td>` + data[i]['crawl']['text'] + `</td>
-            <td>` + data[i]['predictedLabel'] + `</td>  
-            </tr>`
-          );
+          ((data[i]['predictedLabel'] == 1) ? positive++ : ((data[i]['predictedLabel'] == 0) ? negative++ : neutral++))
+          $('#body').append('<tr> <td>' + data[i]['crawl']['userid'] + '</td>' +
+            '<td>' + data[i]['crawl']['text'] + '</td>' +
+            '<td>' + ((data[i]['predictedLabel'] == 1) ? 'Positive' : ((data[i]['predictedLabel'] == 0) ? 'Negative' : 'Neutral')) + '</td></tr>');
         }
         $('#dataTable').DataTable();
+
+        // Load google charts
+        google.charts.load('current', {
+          'packages': ['corechart']
+        });
+        google.charts.setOnLoadCallback(drawChart);
       },
       error: function(xhr) {
+        $('#loader').hide();
         console.log(xhr);
       }
     });
   }
 
-  // Load google charts
-  google.charts.load('current', {
-    'packages': ['corechart']
-  });
-  google.charts.setOnLoadCallback(drawChart);
-
   // Draw the chart and set the chart values
   function drawChart() {
     var data = google.visualization.arrayToDataTable([
       ['Task', 'Hours per Day'],
-      ['Work', 2],
-      ['Friends', 2],
-      ['Eat', 2],
-      ['TV', 2],
-      ['Gym', 2],
-      ['Sleep', 2]
+      ['Negative', negative],
+      ['Nutral', neutral],
+      ['Positive', positive]
     ]);
-
-    var options = {
-      'title': 'My Average Day',
-    };
 
     // Display the chart inside the <div> element with id="piechart"
     var chart = new google.visualization.PieChart(document.getElementById('piechart'));
-    chart.draw(data, options);
+    chart.draw(data);
   }
 </script>
