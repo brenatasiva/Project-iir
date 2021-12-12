@@ -23,11 +23,21 @@ class Dice implements Distance
             throw InvalidArgumentException::arraySizeNotMatch();
         }
 
-        $distance = 0;
-        $obs_in_both = count(array_intersect($a, $b));
+        $numerator = 0.0;
+        $denom_wkq = 0.0;
+        $denom_wkj = 0.0;
+        for ($x = 0; $x < count($a); $x++) {
+            $numerator += $b[$x] * $a[$x];
+            $denom_wkq += pow($b[$x], 2);
+            $denom_wkj += pow($a[$x], 2);
+        }
+        if ($denom_wkq == 0.0 && $denom_wkj == 0.0 && $numerator == 0.0) {
+            $result = 0.0;
+        } else {
+            $result = $numerator / (0.5 * $denom_wkq + 0.5 * $denom_wkj);
+        }
 
-
-        return 1 - ((2 * $obs_in_both) / (count($a) + count($b)));
+        return $result;
 
         // ref https://towardsdatascience.com/17-types-of-similarity-and-dissimilarity-measures-used-in-data-science-3eb914d2681
     }

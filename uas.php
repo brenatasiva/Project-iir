@@ -76,6 +76,7 @@ foreach ($arrays["statuses"] as $key) {
     $i++;
 }
 
+
 // Step 5: pre process crawled data 
 $vectorizer->transform($tweet);
 $tfIdfTransformer->transform($tweet);
