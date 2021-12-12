@@ -29,10 +29,8 @@ class Cosine implements Distance
             $distance += ($val * $b[$i]);
         }
 
-        $distance / (count($a) * count($b));
+        return $distance / (count($a) * count($b));
 
-        return ($distance);
-        
         // ref: https://stackoverflow.com/questions/16803289/cosine-similarity-php
     }
 }

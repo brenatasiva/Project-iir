@@ -1,3 +1,7 @@
+<?php
+
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -45,13 +49,13 @@
     </div>
   </nav>
   <!-- End of navigation -->
-
   <!-- input keyword -->
   <div class="container">
-    <div class="input-group mb-3 mx-auto my-5" style="width: 50%;">
-      <input type="text" class="form-control" placeholder="Keyword" aria-label="Recipient's username" aria-describedby="button-addon2">
-      <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
-    </div>
+    <form action="uas.php" method="post">
+      <div class="input-group mb-3 mx-auto my-5" style="width: 50%;">
+        <input type="text" class="form-control" placeholder="Keyword" aria-label="Recipient's username" aria-describedby="button-addon2" id="keyword" name="keyword">
+        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Search</button>
+      </div>
   </div>
   <!-- end input keyword -->
 
@@ -60,28 +64,28 @@
     <div class="row justify-content-center">
       <div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
-          <label class="form-check-label" for="exampleRadios1">
+          <input class="form-check-input" type="radio" name="method" id="exampleRadios1" value="Dice" checked>
+          <label class="form-check-label">
             Dice
           </label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
-          <label class="form-check-label" for="exampleRadios2">
+          <input class="form-check-input" type="radio" name="method" id="exampleRadios2" value="Jaccard">
+          <label class="form-check-label">
             Jaccard
           </label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option3">
-          <label class="form-check-label" for="exampleRadios3">
+          <input class="form-check-input" type="radio" name="method" id="exampleRadios3" value="Cosine">
+          <label class="form-check-label">
             Cosine
           </label>
         </div>
       </div>
     </div>
   </div>
+  </form>
   <!-- end radio -->
-
   <!-- result table -->
   <div class="container">
     <table class="display" id="dataTable">
@@ -129,6 +133,32 @@
 </html>
 
 <script type="text/javascript">
+  // function process() {
+  //   var keyword = document.getElementById("keyword").value;
+  //   var method = document.getElementsByName('method');
+  //   for (i = 0; i < method.length; i++) {
+  //     if (method[i].checked) {
+  //       method = method[i].value;
+  //       break;
+  //     }
+  //   }
+
+  //   $.ajax({
+  //     type: 'POST',
+  //     url: 'uas.php',
+  //     data: {
+  //       'keyword': keyword,
+  //       'method': method,
+  //     },
+  //     success: function(data) {
+  //       alert(data['predictedLabel'][0]);
+  //     },
+  //     error: function(xhr) {
+  //       console.log(xhr);
+  //     }
+  //   });
+  // }
+
   $(document).ready(function() {
     $('#dataTable').DataTable();
   });

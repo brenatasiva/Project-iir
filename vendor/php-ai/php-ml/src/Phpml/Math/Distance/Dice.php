@@ -27,7 +27,7 @@ class Dice implements Distance
         $obs_in_both = count(array_intersect($a, $b));
 
 
-        return (2 * $obs_in_both) / (count($a) + count($b));
+        return 1 - ((2 * $obs_in_both) / (count($a) + count($b)));
 
         // ref https://towardsdatascience.com/17-types-of-similarity-and-dissimilarity-measures-used-in-data-science-3eb914d2681
     }
