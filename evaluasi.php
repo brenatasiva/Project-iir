@@ -73,39 +73,6 @@ $predictedLabels = $classifier->predict($X_test);
 // print_r($predictedLabels);
 // echo "</pre>";
 
-// jaccard
-for ($i = 0; $i < $total - 1; $i++) {
-    $num = 0;
-    $denum1 = 0;
-    $denum2 = 0;
-    $denum3 = 0;
-    for ($j = 0; $j < $total; $j++) {
-        $Wkq = $sample_data[$total - 1][$j];
-        $Wkj = $sample_data[$i][$j];
-        $num += $Wkq * $Wkj;
-        $denum1 += pow($Wkq, 2);
-        $denum2 += pow($Wkj, 2);
-        $denum3 = $num;
-    }
-    $result = $num / ($denum1 + $denum3 - $denum3);
-    echo "D" . ($i + 1) . " and Q = " . round($result, 2) . "<br>";
-}
-
-// cosine
-for ($i = 0; $i < $total - 1; $i++) {
-    $num = 0;
-    $denum1 = 0;
-    $denum2 = 0;
-    for ($j = 0; $j < $total; $j++) {
-        $Wkq = $sample_data[$total - 1][$j];
-        $Wkj = $sample_data[$i][$j];
-        $num += $Wkq * $Wkj;
-        $denum1 += pow($Wkq, 2);
-        $denum2 += pow($Wkj, 2);
-    }
-    $result = $num / sqrt($denum1 * $denum2);
-    echo "D" . ($i + 1) . " and Q = " . round($result, 2) . "<br>";
-}
 ?>
 
 <!DOCTYPE html>

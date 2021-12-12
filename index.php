@@ -26,6 +26,27 @@
   .container {
     width: 100%;
   }
+
+  .loader {
+    border: 16px solid #f3f3f3;
+    /* Light grey */
+    border-top: 16px solid #3498db;
+    /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
+  }
 </style>
 
 <body>
@@ -99,6 +120,7 @@
       <tbody id="body">
       </tbody>
     </table>
+    <div class="loader" id="loader" style="display: none;"></div>
   </div>
   <!-- end of table -->
 
@@ -118,6 +140,8 @@
   function process() {
     var keyword = document.getElementById("keyword").value;
     var method = document.getElementsByName('method');
+    $('#body').empty();
+    $('#loader').show();
     for (i = 0; i < method.length; i++) {
       if (method[i].checked) {
         method = method[i].value;
@@ -134,7 +158,7 @@
       },
       dataType: 'json',
       success: function(data) {
-        $('#body').empty();
+        $('#loader').hide();
         for (var i = 0; i < data.length; i++) {
           $('#body').append(
             `<tr>
