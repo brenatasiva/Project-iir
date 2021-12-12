@@ -68,11 +68,11 @@ $data = array();
 $i = 0;
 $tweet = array();
 foreach ($arrays["statuses"] as $key) {
-    $content =  $arrays["statuses"][$i]['text'];
+    $text =  $arrays["statuses"][$i]['text'];
     $user_id = $arrays["statuses"][$i]["user"]["screen_name"];
-    $arr_tmp = array("content" => $content, "userid" => $user_id);
+    $arr_tmp = array("text" => $text, "userid" => $user_id);
     array_push($data, $arr_tmp);
-    array_push($tweet, $content);
+    array_push($tweet, $text);
     $i++;
 }
 
