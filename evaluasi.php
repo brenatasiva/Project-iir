@@ -60,27 +60,37 @@ $X_test  = $split_dataset->getTestSamples();
 $y_test  = $split_dataset->getTestLabels();
 
 //step 4: training
-$distanceMetric = new Dice();
-$classifierDice = new KNearestNeighbors(count($X_train) / 3, $distanceMetric);
+$dice = new Dice();
+$classifierDice = new KNearestNeighbors(count($X_train) / 3, $dice);
 $classifierDice->train($X_train, $y_train);
 
-$distanceMetric = new Jaccard();
-$classifierJaccard = new KNearestNeighbors(count($X_train) / 3, $distanceMetric);
+$jaccard = new Jaccard();
+$classifierJaccard = new KNearestNeighbors(count($X_train) / 3, $jaccard);
 $classifierJaccard->train($X_train, $y_train);
 
-$distanceMetric = new Cosine();
-$classifierCosine = new KNearestNeighbors(count($X_train) / 3, $distanceMetric);
+$cosine = new Cosine();
+$classifierCosine = new KNearestNeighbors(count($X_train) / 3, $cosine);
 $classifierCosine->train($X_train, $y_train);
 
 // Step 5: predict 
 $predictedLabelsDice = $classifierDice->predict($X_test);
-$predictedLabelsJaccard = $classifierDice->predict($X_test);
-$predictedLabelsCosine = $classifierDice->predict($X_test);
+$predictedLabelsJaccard = $classifierJaccard->predict($X_test);
+$predictedLabelsCosine = $classifierCosine->predict($X_test);
 
 //step 6: test the model
 $accuracyDice = Accuracy::score($y_test, $predictedLabelsDice) * 100;
 $accuracyJaccard = Accuracy::score($y_test, $predictedLabelsJaccard) * 100;
 $accuracyCosine = Accuracy::score($y_test, $predictedLabelsCosine) * 100;
+
+$validDice = 0;
+$validJaccard = 0;
+$validCosine = 0;
+
+for ($i = 0; $i < count($y_test); $i++) {
+    if ($predictedLabelsDice[$i] == $y_test[$i])  $validDice++;
+    if ($predictedLabelsJaccard[$i] == $y_test[$i]) $validJaccard++;
+    if ($predictedLabelsCosine[$i] == $y_test[$i]) $validCosine++;
+}
 
 ?>
 
@@ -154,7 +164,8 @@ $accuracyCosine = Accuracy::score($y_test, $predictedLabelsCosine) * 100;
     <!-- result table Dice-->
     <div class="container">
         <h1>Dice</h1>
-        <h2><?= 'Accuracy: ' . $accuracyDice; ?></h2>
+        <h2><?= 'Accuracy: ' . round($accuracyDice, 2) . '%'; ?></h2>
+        <h3>Jumlah Valid : <?= $validDice ?></h3>
         <table class="display" id="dataTableDice">
             <thead>
                 <tr>
@@ -185,7 +196,8 @@ $accuracyCosine = Accuracy::score($y_test, $predictedLabelsCosine) * 100;
 
         <!-- result table Jaccard-->
         <h1>Jaccard</h1>
-        <h2><?= 'Accuracy: ' . $accuracyJaccard; ?></h2>
+        <h2><?= 'Accuracy: ' . round($accuracyJaccard, 2) . '%'; ?></h2>
+        <h3>Jumlah Valid : <?= $validJaccard ?></h3>
         <table class="display" id="dataTableJaccard">
             <thead>
                 <tr>
@@ -216,7 +228,8 @@ $accuracyCosine = Accuracy::score($y_test, $predictedLabelsCosine) * 100;
 
         <!-- result table Cosine-->
         <h1>Cosine</h1>
-        <h2><?= 'Accuracy: ' . $accuracyCosine; ?></h2>
+        <h2><?= 'Accuracy : ' . round($accuracyCosine, 2) . '%'; ?></h2>
+        <h3>Jumlah Valid : <?= $validCosine ?></h3>
         <table class="display" id="dataTableCosine">
             <thead>
                 <tr>
