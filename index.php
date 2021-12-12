@@ -51,11 +51,11 @@
   <!-- End of navigation -->
   <!-- input keyword -->
   <div class="container">
-    <form action="uas.php" method="post">
-      <div class="input-group mb-3 mx-auto my-5" style="width: 50%;">
-        <input type="text" class="form-control" placeholder="Keyword" aria-label="Recipient's username" aria-describedby="button-addon2" id="keyword" name="keyword">
-        <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Search</button>
-      </div>
+    <!-- <form action="uas.php" method="post"> -->
+    <div class="input-group mb-3 mx-auto my-5" style="width: 50%;">
+      <input type="text" class="form-control" placeholder="Keyword" aria-label="Recipient's username" aria-describedby="button-addon2" id="keyword" name="keyword">
+      <button class="btn btn-outline-secondary" type="submit" id="button-addon2" onclick="process()">Search</button>
+    </div>
   </div>
   <!-- end input keyword -->
 
@@ -84,7 +84,7 @@
       </div>
     </div>
   </div>
-  </form>
+  <!-- </form> -->
   <!-- end radio -->
   <!-- result table -->
   <div class="container">
@@ -96,22 +96,7 @@
           <th scope="col">Label Sentiment</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          <td>1</td>
-          <td>Mark</td>
-          <td>Otto</td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Jacob</td>
-          <td>Thornton</td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td>Larry the Bird</td>
-          <td></td>
-        </tr>
+      <tbody id="body">
       </tbody>
     </table>
   </div>
@@ -125,43 +110,47 @@
     </div>
   </div>
   <!-- end of pie chart -->
-
-
-
 </body>
 
 </html>
 
 <script type="text/javascript">
-  // function process() {
-  //   var keyword = document.getElementById("keyword").value;
-  //   var method = document.getElementsByName('method');
-  //   for (i = 0; i < method.length; i++) {
-  //     if (method[i].checked) {
-  //       method = method[i].value;
-  //       break;
-  //     }
-  //   }
+  function process() {
+    var keyword = document.getElementById("keyword").value;
+    var method = document.getElementsByName('method');
+    for (i = 0; i < method.length; i++) {
+      if (method[i].checked) {
+        method = method[i].value;
+        break;
+      }
+    }
 
-  //   $.ajax({
-  //     type: 'POST',
-  //     url: 'uas.php',
-  //     data: {
-  //       'keyword': keyword,
-  //       'method': method,
-  //     },
-  //     success: function(data) {
-  //       alert(data['predictedLabel'][0]);
-  //     },
-  //     error: function(xhr) {
-  //       console.log(xhr);
-  //     }
-  //   });
-  // }
-
-  $(document).ready(function() {
-    $('#dataTable').DataTable();
-  });
+    $.ajax({
+      type: 'POST',
+      url: 'uas.php',
+      data: {
+        'keyword': keyword,
+        'method': method,
+      },
+      dataType: 'json',
+      success: function(data) {
+        $('#body').empty();
+        for (var i = 0; i < data.length; i++) {
+          $('#body').append(
+            `<tr>
+            <td>` + data[i]['crawl']['userid'] + `</td>
+            <td>` + data[i]['crawl']['text'] + `</td>
+            <td>` + data[i]['predictedLabel'] + `</td>  
+            </tr>`
+          );
+        }
+        $('#dataTable').DataTable();
+      },
+      error: function(xhr) {
+        console.log(xhr);
+      }
+    });
+  }
 
   // Load google charts
   google.charts.load('current', {

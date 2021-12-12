@@ -52,8 +52,8 @@ $usersectok = "8KVrZ7HpDk3WJj5SGXRDnoL6fXSnWfb29flXfn7OPXE9RrXo2Y";
 $aptok =  "1454789972368658443-VKp7ccXtcXXDpBFbIzydHGRPfr0aib";
 $apsectok = "NLnzuHBmopGeGPLQE4xs45njQ6TMIdd9J5XyP2l3xrm7m";
 $keyword = $_POST['keyword'];
-echo $keyword;
-echo $_POST['method'];
+// echo $keyword;
+// echo $_POST['method'];
 
 $connection = new TwitterOAuth(
     $usertok,
@@ -83,10 +83,11 @@ $tfIdfTransformer->transform($tweet);
 //step 6: analyze sentiment label
 $predictedLabels = $classifier->predict($tweet);
 
-echo "<pre>";
-print_r($predictedLabels);
-echo "</pre>";
+// echo "<pre>";
+// print_r($predictedLabels);
+// echo "</pre>";
 
-// $result = array("predictedLabel" => $predictedLabels, "crawl" => $data);
-
-// echo json_encode($result);
+for ($i = 0; $i < count($tweet); $i++) {
+    $result[] = array("predictedLabel" => $predictedLabels[$i], "crawl" => $data[$i]);
+}
+echo json_encode($result);
