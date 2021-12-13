@@ -4,11 +4,7 @@
     <property name="php" value="php"/>
 
     <target name="build"
-        depends="prepare,lint,phpcs,phpunit"/>
-
-    <target name="prepare">
-        <mkdir dir="${basedir}/build"/>
-    </target>
+        depends="lint,phpcs,php-cs-fixer,phpunit"/>
 
     <target name="lint">
         <apply executable="${php}" failonerror="true">
@@ -28,7 +24,6 @@
 
     <target name="phpunit" description="Run unit tests with PHPUnit">
         <exec executable="phpunit" failonerror="true">
-            <arg value="--coverage-clover=${basedir}/build/coverage.clover" />
         </exec>
     </target>
     
@@ -45,13 +40,13 @@
         <exec executable="${basedir}/php-cs-fixer.phar" failonerror="true">
             <arg value="fix" />
             <arg value="--dry-run" />
-            <arg value="--level=psr2" />
+            <arg value="--level=all" />
             <arg path="${basedir}/src" />
         </exec>
         <exec executable="${basedir}/php-cs-fixer.phar" failonerror="true">
             <arg value="fix" />
             <arg value="--dry-run" />
-            <arg value="--level=psr2" />
+            <arg value="--level=all" />
             <arg path="${basedir}/tests" />
         </exec>
     </target> 

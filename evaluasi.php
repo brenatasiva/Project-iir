@@ -16,9 +16,11 @@ use Phpml\Metric\ClassificationReport;
 use Phpml\CrossValidation\RandomSplit;
 use Phpml\Classification\KNearestNeighbors;
 use Phpml\Math\Distance\Euclidean;
-use Phpml\Math\Distance\Dice;
-use Phpml\Math\Distance\Jaccard;
+use Phpml\Math\Distance\Asymmetric;
+use Phpml\Math\Distance\Overlap;
 use Phpml\Math\Distance\Cosine;
+use Sastrawi\Stemmer\StemmerFactory;
+use Sastrawi\StopWordRemover\StopWordRemoverFactory;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -42,6 +44,17 @@ $X_test1  = $split_dataset1->getTestSamples();
 $y_test1  = $split_dataset1->getTestLabels();
 
 // Step 2: Prepare the Dataset
+$stemmerFactory = new StemmerFactory();
+$stemmer = $stemmerFactory->createStemmer();
+$stopwordFactory = new StopWordRemoverFactory();
+$stopword = $stopwordFactory->createStopWordRemover();
+$stemSample = array();
+foreach ($sample as $row => $value) {
+    $stemSentence = $stemmer->stem($value);
+    $stopSentence = $stopword->remove($stemSentence);
+    array_push($stemSample, $stopSentence);
+}
+
 $vectorizer = new TokenCountVectorizer(new WordTokenizer());
 $vectorizer->fit($sample);
 $vectorizer->transform($sample);
@@ -60,35 +73,35 @@ $X_test  = $split_dataset->getTestSamples();
 $y_test  = $split_dataset->getTestLabels();
 
 //step 4: training
-$dice = new Dice();
-$classifierDice = new KNearestNeighbors(count($X_train) / 3, $dice);
-$classifierDice->train($X_train, $y_train);
+$overlap = new Overlap();
+$classifierOverlap = new KNearestNeighbors(count($X_train) / 3, $overlap);
+$classifierOverlap->train($X_train, $y_train);
 
-$jaccard = new Jaccard();
-$classifierJaccard = new KNearestNeighbors(count($X_train) / 3, $jaccard);
-$classifierJaccard->train($X_train, $y_train);
+$asymmetric = new Asymmetric();
+$classifierAsymmetric = new KNearestNeighbors(count($X_train) / 3, $asymmetric);
+$classifierAsymmetric->train($X_train, $y_train);
 
 $cosine = new Cosine();
 $classifierCosine = new KNearestNeighbors(count($X_train) / 3, $cosine);
 $classifierCosine->train($X_train, $y_train);
 
 // Step 5: predict 
-$predictedLabelsDice = $classifierDice->predict($X_test);
-$predictedLabelsJaccard = $classifierJaccard->predict($X_test);
+$predictedLabelsOverlap = $classifierOverlap->predict($X_test);
+$predictedLabelsAsymmetric = $classifierAsymmetric->predict($X_test);
 $predictedLabelsCosine = $classifierCosine->predict($X_test);
 
 //step 6: test the model
-$accuracyDice = Accuracy::score($y_test, $predictedLabelsDice) * 100;
-$accuracyJaccard = Accuracy::score($y_test, $predictedLabelsJaccard) * 100;
+$accuracyOverlap = Accuracy::score($y_test, $predictedLabelsOverlap) * 100;
+$accuracyAsymmetric = Accuracy::score($y_test, $predictedLabelsAsymmetric) * 100;
 $accuracyCosine = Accuracy::score($y_test, $predictedLabelsCosine) * 100;
 
-$validDice = 0;
-$validJaccard = 0;
+$validOverlap = 0;
+$validAsymmetric = 0;
 $validCosine = 0;
 
 for ($i = 0; $i < count($y_test); $i++) {
-    if ($predictedLabelsDice[$i] == $y_test[$i])  $validDice++;
-    if ($predictedLabelsJaccard[$i] == $y_test[$i]) $validJaccard++;
+    if ($predictedLabelsOverlap[$i] == $y_test[$i])  $validOverlap++;
+    if ($predictedLabelsAsymmetric[$i] == $y_test[$i]) $validAsymmetric++;
     if ($predictedLabelsCosine[$i] == $y_test[$i]) $validCosine++;
 }
 
@@ -161,12 +174,12 @@ for ($i = 0; $i < count($y_test); $i++) {
 
     <div class="loader" id="loader" style="display: none;"></div>
 
-    <!-- result table Dice-->
+    <!-- result table Overlap-->
     <div class="container">
-        <h1>Dice</h1>
-        <h2><?= 'Accuracy: ' . round($accuracyDice, 2) . '%'; ?></h2>
-        <h3>Jumlah Valid : <?= $validDice ?></h3>
-        <table class="display" id="dataTableDice">
+        <h1>Overlap</h1>
+        <h2><?= 'Accuracy: ' . round($accuracyOverlap, 2) . '%'; ?></h2>
+        <h3>Jumlah Valid : <?= $validOverlap ?></h3>
+        <table class="display" id="dataTableOverlap">
             <thead>
                 <tr>
                     <th scope="col">Tweets</th>
@@ -179,13 +192,13 @@ for ($i = 0; $i < count($y_test); $i++) {
                 <?php
                 for ($i = 0; $i < count($y_test); $i++) :
                     $y_test[$i] = str_replace('"', "", $y_test[$i]);
-                    $predictedLabelsDice[$i] = str_replace('"', "", $predictedLabelsDice[$i]);
+                    $predictedLabelsOverlap[$i] = str_replace('"', "", $predictedLabelsOverlap[$i]);
                 ?>
                     <tr>
                         <td><?= $X_test1[$i]; ?></td>
                         <td><?= ($y_test[$i] == '1') ? "Positive" : (($y_test[$i] == '0') ? "Negative" : "Neutral") ?></td>
-                        <td><?= ($predictedLabelsDice[$i] == '1') ? "Positive" : (($predictedLabelsDice[$i] == '0') ? "Negative" : "Neutral") ?></td>
-                        <td><?= ($predictedLabelsDice[$i] == $y_test[$i]) ? "v" : "x" ?></td>
+                        <td><?= ($predictedLabelsOverlap[$i] == '1') ? "Positive" : (($predictedLabelsOverlap[$i] == '0') ? "Negative" : "Neutral") ?></td>
+                        <td><?= ($predictedLabelsOverlap[$i] == $y_test[$i]) ? "v" : "x" ?></td>
                     </tr>
                 <?php
                 endfor;
@@ -194,11 +207,11 @@ for ($i = 0; $i < count($y_test); $i++) {
         </table>
         <!-- end of table -->
 
-        <!-- result table Jaccard-->
-        <h1>Jaccard</h1>
-        <h2><?= 'Accuracy: ' . round($accuracyJaccard, 2) . '%'; ?></h2>
-        <h3>Jumlah Valid : <?= $validJaccard ?></h3>
-        <table class="display" id="dataTableJaccard">
+        <!-- result table Asymmetric-->
+        <h1>Asymmetric</h1>
+        <h2><?= 'Accuracy: ' . round($accuracyAsymmetric, 2) . '%'; ?></h2>
+        <h3>Jumlah Valid : <?= $validAsymmetric ?></h3>
+        <table class="display" id="dataTableAsymmetric">
             <thead>
                 <tr>
                     <th scope="col">Tweets</th>
@@ -211,13 +224,13 @@ for ($i = 0; $i < count($y_test); $i++) {
                 <?php
                 for ($i = 0; $i < count($y_test); $i++) :
                     $y_test[$i] = str_replace('"', "", $y_test[$i]);
-                    $predictedLabelsJaccard[$i] = str_replace('"', "", $predictedLabelsJaccard[$i]);
+                    $predictedLabelsAsymmetric[$i] = str_replace('"', "", $predictedLabelsAsymmetric[$i]);
                 ?>
                     <tr>
                         <td><?= $X_test1[$i]; ?></td>
                         <td><?= ($y_test[$i] == '1') ? "Positive" : (($y_test[$i] == '0') ? "Negative" : "Neutral") ?></td>
-                        <td><?= ($predictedLabelsJaccard[$i] == '1') ? "Positive" : (($predictedLabelsJaccard[$i] == '0') ? "Negative" : "Neutral") ?></td>
-                        <td><?= ($predictedLabelsJaccard[$i] == $y_test[$i]) ? "v" : "x" ?></td>
+                        <td><?= ($predictedLabelsAsymmetric[$i] == '1') ? "Positive" : (($predictedLabelsAsymmetric[$i] == '0') ? "Negative" : "Neutral") ?></td>
+                        <td><?= ($predictedLabelsAsymmetric[$i] == $y_test[$i]) ? "v" : "x" ?></td>
                     </tr>
                 <?php
                 endfor;
@@ -265,8 +278,8 @@ for ($i = 0; $i < count($y_test); $i++) {
 <script type="text/javascript">
     $(document).ready(function() {
         $('#loader').hide();
-        $('#dataTableDice').DataTable();
-        $('#dataTableJaccard').DataTable();
+        $('#dataTableOverlap').DataTable();
+        $('#dataTableAsymmetric').DataTable();
         $('#dataTableCosine').DataTable();
     });
 </script>

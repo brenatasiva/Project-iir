@@ -1,50 +1,66 @@
 <?php
 ini_set('max_execution_time', '3000');
 require "vendor/autoload.php";
-require "classifyTweets.php";
+// require "classifyTweets.php";
 
 use Phpml\FeatureExtraction\TokenCountVectorizer;
 use Phpml\FeatureExtraction\TfIdfTransformer;
 use Phpml\Tokenization\WordTokenizer;
-use Phpml\Math\Distance\Dice;
-use Phpml\Math\Distance\Jaccard;
+use Phpml\Math\Distance\Overlap;
+use Phpml\Math\Distance\Asymmetric;
 use Phpml\Math\Distance\Cosine;
 use Phpml\Classification\KNearestNeighbors;
 use Phpml\ModelManager;
 use Abraham\TwitterOAuth\TwitterOAuth;
+use Sastrawi\Stemmer\StemmerFactory;
+use Sastrawi\StopWordRemover\StopWordRemoverFactory;
 
 
 
 // Step 1: Load the Dataset for training the model
-$data = file_get_contents('tweet.csv');
+$data = file_get_contents('tweetHome.csv');
 $arr = explode("\n", $data);
 $label = [];
 $sample = [];
-for ($i = 1; $i < count($arr); $i++) {
+$lastIdx = "";
+for ($i = 1; $i < count($arr) - 1; $i++) {
     $text = explode(";", $arr[$i]);
     $label[] = $text[3];
     $sample[] = $text[1];
+    $lastIdx = $text[0];
 }
 
 // Step 2: Preprocessing
+$stemmerFactory = new StemmerFactory();
+$stemmer = $stemmerFactory->createStemmer();
+$stopwordFactory = new StopWordRemoverFactory();
+$stopword = $stopwordFactory->createStopWordRemover();
+$stemSample = array();
+foreach ($sample as $row => $value) {
+    $stemSentence = $stemmer->stem($value);
+    $stopSentence = $stopword->remove($stemSentence);
+    array_push($stemSample, $stopSentence);
+}
+
+
 $vectorizer = new TokenCountVectorizer(new WordTokenizer());
-$vectorizer->fit($sample);
-$vectorizer->transform($sample);
+$vectorizer->fit($stemSample);
+$vectorizer->transform($stemSample);
 
 $tfIdfTransformer = new TfIdfTransformer();
-$tfIdfTransformer->fit($sample);
-$tfIdfTransformer->transform($sample);
+$tfIdfTransformer->fit($stemSample);
+$tfIdfTransformer->transform($stemSample);
 
 // Step 3: Train the classifier 
-if ($_POST['method'] == 'Dice')
-    $distanceMetric = new Dice();
-else if ($_POST['method'] == 'Jaccard')
-    $distanceMetric = new Jaccard();
+if ($_POST['method'] == 'Overlap')
+    $distanceMetric = new Overlap();
+else if ($_POST['method'] == 'Asymmetric')
+    $distanceMetric = new Asymmetric();
 else if ($_POST['method'] == 'Cosine')
     $distanceMetric = new Cosine();
 
-$classifier = new KNearestNeighbors(count($sample) / 3, $distanceMetric);
-$classifier->train($sample, $label);
+$classifier = new KNearestNeighbors(count($stemSample) / 3, $distanceMetric);
+$classifier->train($stemSample, $label);
 
 //step 4: crawl the data
 $usertok = "OQHfQVniUJ5Z0siLb1tWGB8Cn";
@@ -62,7 +78,7 @@ $connection = new TwitterOAuth(
     $apsectok
 );
 $content = $connection->get("account/verify_credentials");
-$status = $connection->get("search/tweets", ["q" => $keyword, "count" => "100"]);
+$status = $connection->get("search/tweets", ["q" => $keyword, "count" => "5"]);
 $arrays = json_decode(json_encode($status), true);
 $data = array();
 $i = 0;
@@ -78,17 +94,52 @@ foreach ($arrays["statuses"] as $key) {
 
 
 // Step 5: pre process crawled data 
-$vectorizer->transform($tweet);
-$tfIdfTransformer->transform($tweet);
+$stemTweet = array();
+foreach ($tweet as $row => $value) {
+    $stemSentence = $stemmer->stem($value);
+    $stopSentence = $stopword->remove($stemSentence);
+    array_push($stemTweet, $stopSentence);
+}
+
+
+$vectorizer->transform($stemTweet);
+$tfIdfTransformer->transform($stemTweet);
 
 //step 6: analyze sentiment label
-$predictedLabels = $classifier->predict($tweet);
+$predictedLabels = $classifier->predict($stemTweet);
 
 // echo "<pre>";
 // print_r($predictedLabels);
 // echo "</pre>";
 
-for ($i = 0; $i < count($tweet); $i++) {
+//step 7:input crawled data to csv
+$list = array();
+$lastIdx = str_replace('"', "", $lastIdx);
+// echo "<pre>";
+// print_r($data);
+// echo "</pre>";
+
+for ($i = 0; $i < count($data); $i++) {
+    $data[$i]['text'] = str_replace(array("\r", "\n"), "", $data[$i]['text']);
+    $predictedLabels[$i] = str_replace(array("\r", "\n"), "", $predictedLabels[$i]);
+    $predictedLabels[$i] = str_replace('"', "", $predictedLabels[$i]);
+    $list[] = array((intval($lastIdx) + $i + 1), $data[$i]['text'], $data[$i]['userid'], $predictedLabels[$i]);
+}
+
+// echo "<pre>";
+// print_r($list);
+// echo "</pre>";
+
+$file = fopen('tweetHome.csv', 'a');  // 'a' for append to file - created if doesn't exit
+
+foreach ($list as $line) {
+    fputcsv($file, $line, ';');
+}
+
+fclose($file);
+
+
+for ($i = 0; $i < count($stemTweet); $i++) {
     $predictedLabels[$i] = str_replace('"', "", $predictedLabels[$i]);
     $result[] = array("predictedLabel" => $predictedLabels[$i], "crawl" => $data[$i]);
 }

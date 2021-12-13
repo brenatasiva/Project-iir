@@ -22,9 +22,7 @@ class StemmerTest extends \PHPUnit_Framework_TestCase
                 'bangun', 'fitnah', 'vonis',
                 'baru', 'ajar',
                 'tangkap', 'kupas',
-                'minum', 'pukul',
-                'cinta', 'dua', 'dahulu', 'jauh', 'jarah', 'ziarah',
-                'nuklir', 'nasihat', 'gila', 'hajar', 'qasar', 'udara',
+                'minum', 'pukul', 'cinta', 'dua', 'jauh', 'ziarah', 'nuklir', 'gila', 'hajar', 'qasar', 'udara',
                 'populer', 'warna', 'yoga', 'adil', 'rumah', 'muka', 'labuh', 'tarung',
                 'tebar', 'indah', 'daya', 'untung', 'sepuluh', 'ekonomi', 'makmur', 'telah', 'serta',
                 'percaya', 'pengaruh', 'kritik', 'seko', 'sekolah', 'tahan', 'capa', 'capai',
@@ -32,13 +30,11 @@ class StemmerTest extends \PHPUnit_Framework_TestCase
                 'peran', 'medan', 'syukur', 'syarat', 'bom', 'promosi', 'proteksi', 'prediksi', 'kaji',
                 'sembunyi', 'langgan', 'laku', 'baik', 'terang', 'iman', 'bisik', 'taat', 'puas', 'makan',
                 'nyala', 'nyanyi', 'nyata', 'nyawa', 'rata', 'lembut', 'ligas',
-                'budaya', 'karya', 'ideal', 'final',
-                // sastrawi additional rules
-                'taat', 'tiru', 'sepak', 'kuasa', 'malaikat', 'nikmat', 'stabil', 'transkripsi',
-                'lewat', 'nganga', 'allah',
+                'budaya', 'karya','ideal', 'final',
+                'taat', // sastrawi additional rules
             )
         );
-        $this->stemmer = new Stemmer($this->dictionary);
+        $this->stemmer    = new Stemmer($this->dictionary);
     }
 
     /**
@@ -91,8 +87,7 @@ class StemmerTest extends \PHPUnit_Framework_TestCase
         $data[] = array('kesakitan', 'sakit');
         $data[] = array('sesuap', 'suap');
 
-        //$data[] = array('teriakanmu', 'teriak'); // wtf? kok jadi ria?
-        //teriakanmu -> te-ria-kan-mu
+        //$data[] = array('teriakanmu', 'teriak'); // wtf? kok jadi teria?
 
         /* template formulas for derivation prefix rules (disambiguation) */
 
@@ -142,8 +137,8 @@ class StemmerTest extends \PHPUnit_Framework_TestCase
         $data[] = array('memvonis', 'vonis');
 
         // rule 12 : mempe{r|l} -> mem-pe
-        $data[] = array('memperbarui', 'baru');
-        $data[] = array('mempelajari', 'ajar');
+        $data[] = array('memperbaru', 'baru');
+        $data[] = array('mempelajar', 'ajar');
 
         // rule 13a : mem{rV|V} -> mem{rV|V}
         $data[] = array('meminum', 'minum');
@@ -210,13 +205,14 @@ class StemmerTest extends \PHPUnit_Framework_TestCase
         $data[] = array('pemukul', 'pukul');
 
         // rule 27 : men{c|d|j|z} -> men-{c|d|j|z}
+        // TODO : should find more relevant examples
         $data[] = array('pencinta', 'cinta');
-        $data[] = array('pendahulu', 'dahulu');
-        $data[] = array('penjarah', 'jarah');
+        $data[] = array('pendua', 'dua');
+        $data[] = array('penjauh', 'jauh');
         $data[] = array('penziarah', 'ziarah');
 
         // rule 28a : pen{V} -> pe-n{V}
-        $data[] = array('penasihat', 'nasihat');
+        $data[] = array('penuklir', 'nuklir');
 
         // rule 28b : pen{V} -> pe-t{V}
         $data[] = array('penangkap', 'tangkap');
@@ -237,7 +233,7 @@ class StemmerTest extends \PHPUnit_Framework_TestCase
 
         // rule 32 : pelV -> pe-lV except pelajar -> ajar
         $data[] = array('pelajar', 'ajar');
-        $data[] = array('pelabuhan', 'labuh');
+        $data[] = array('pelabuh', 'labuh');
 
         // rule 33 : peCerV -> per-erV where C != {r|w|y|l|m|n}
         // TODO : find the examples
@@ -345,8 +341,8 @@ class StemmerTest extends \PHPUnit_Framework_TestCase
         // test stem multiple sentences
         $multipleSentence1 = 'Cinta telah bertebaran.Keduanya saling mencintai.';
         $multipleSentence2 = "(Cinta telah bertebaran)\n\n\n\nKeduanya saling mencintai.";
-        $data[]            = array($multipleSentence1, 'cinta telah tebar dua saling cinta');
-        $data[]            = array($multipleSentence2, 'cinta telah tebar dua saling cinta');
+        $data[] = array($multipleSentence1, 'cinta telah tebar dua saling cinta');
+        $data[] = array($multipleSentence2, 'cinta telah tebar dua saling cinta');
 
         // failed on other method / algorithm but we should succeed
         $data[] = array('peranan', 'peran');
@@ -360,30 +356,14 @@ class StemmerTest extends \PHPUnit_Framework_TestCase
         //$data[] = array('abdullah', 'abdullah');
 
         // adopted foreign suffixes
-        //$data[] = array('budayawan', 'budaya');
-        //$data[] = array('karyawati', 'karya');
+        $data[] = array('budayawan', 'budaya');
+        $data[] = array('karyawati', 'karya');
         $data[] = array('idealis', 'ideal');
         $data[] = array('idealisme', 'ideal');
         $data[] = array('finalisasi', 'final');
 
         // sastrawi additional rules
-        $data[] = array('penstabilan', 'stabil');
-        $data[] = array('pentranskripsi', 'transkripsi');
-
         $data[] = array('mentaati', 'taat');
-        $data[] = array('meniru-nirukan', 'tiru');
-        $data[] = array('menyepak-nyepak', 'sepak');
-
-        $data[] = array('melewati', 'lewat');
-        $data[] = array('menganga', 'nganga');
-
-        $data[] = array('kupukul', 'pukul');
-        $data[] = array('kauhajar', 'hajar');
-
-        $data[] = array('kuasa-Mu', 'kuasa');
-        $data[] = array('malaikat-malaikat-Nya', 'malaikat');
-        $data[] = array('nikmat-Ku', 'nikmat');
-        $data[] = array('allah-lah', 'allah');
 
         return $data;
     }

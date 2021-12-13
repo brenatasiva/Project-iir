@@ -23,6 +23,7 @@ class Dice implements Distance
             throw InvalidArgumentException::arraySizeNotMatch();
         }
 
+        $result = 0.0;
         $numerator = 0.0;
         $denom_wkq = 0.0;
         $denom_wkj = 0.0;
@@ -31,14 +32,12 @@ class Dice implements Distance
             $denom_wkq += pow($b[$x], 2);
             $denom_wkj += pow($a[$x], 2);
         }
-        if ($denom_wkq == 0.0 && $denom_wkj == 0.0 && $numerator == 0.0) {
+        if ($denom_wkq == 0.0 && $denom_wkj && $numerator == 0.0) {
             $result = 0.0;
         } else {
             $result = $numerator / (0.5 * $denom_wkq + 0.5 * $denom_wkj);
         }
 
         return $result;
-
-        // ref https://towardsdatascience.com/17-types-of-similarity-and-dissimilarity-measures-used-in-data-science-3eb914d2681
     }
 }

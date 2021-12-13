@@ -1,7 +1,6 @@
 vendor
 composer.lock
-*.phar
+composer.phar
+phpunit.phar
+php-cs-fixer.phar
 cache.properties
-build
-Vagrantfile
-.vagrant

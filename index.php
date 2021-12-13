@@ -87,15 +87,15 @@
       <p>Pilih Metode Similaritas</p>
       <div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="method" id="exampleRadios1" value="Dice" checked>
+          <input class="form-check-input" type="radio" name="method" id="exampleRadios1" value="Overlap" checked>
           <label class="form-check-label">
-            Dice
+            Overlap
           </label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="method" id="exampleRadios2" value="Jaccard">
+          <input class="form-check-input" type="radio" name="method" id="exampleRadios2" value="Asymmetric">
           <label class="form-check-label">
-            Jaccard
+            Asymmetric
           </label>
         </div>
         <div class="form-check">
@@ -144,6 +144,9 @@
   var positive = 0
 
   function process() {
+    negative = 0
+    neutral = 0
+    positive = 0
     var keyword = document.getElementById("keyword").value;
     var method = document.getElementsByName('method');
     $('#body').empty();
