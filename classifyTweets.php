@@ -13,8 +13,11 @@ use Phpml\Metric\Accuracy;
 use Phpml\Metric\ClassificationReport;
 use Phpml\CrossValidation\RandomSplit;
 use Phpml\Classification\KNearestNeighbors;
+use Phpml\Math\Distance\Cosine;
 use Phpml\Math\Distance\Euclidean;
 use Phpml\ModelManager;
+use Phpml\Math\Distance\Dice;
+use Phpml\Math\Distance\Jaccard;
 
 require __DIR__ . '/vendor/autoload.php';
 
@@ -58,12 +61,22 @@ $y_test  = $split_dataset->getTestLabels();
 // echo "</pre>";
 
 // Step 4: Train the classifier 
-$distanceMetric = new Euclidean();
-$classifier = new KNearestNeighbors(3, $distanceMetric);
-$classifier->train($X_train, $y_train);
+$dice = new Dice();
+$classifierDice = new KNearestNeighbors(count($X_train) / 3, $dice);
+$classifierDice->train($X_train, $y_train);
+
+$jaccard = new Jaccard();
+$classifierJaccard = new KNearestNeighbors(count($X_train) / 3, $jaccard);
+$classifierJaccard->train($X_train, $y_train);
+
+$cosine = new Cosine();
+$classifierCosine = new KNearestNeighbors(count($X_train) / 3, $cosine);
+$classifierCosine->train($X_train, $y_train);
 
 // Step 5: Test the classifier accuracy 
-// $predictedLabels = $classifier->predict($X_test);
+$predictedLabelsDice = $classifierDice->predict($X_test[0]);
+$predictedLabelsJaccard = $classifierJaccard->predict($X_test[0]);
+$predictedLabelsCosine = $classifierCosine->predict($X_test[0]);
 // echo 'Accuracy: ' . Accuracy::score($y_test, $predictedLabels);
 
 // $new = [
@@ -73,14 +86,20 @@ $classifier->train($X_train, $y_train);
 // ];
 
 //save model
-$filepath = "model\\model.test";
-$modelManager = new ModelManager();
-$modelManager->saveToFile($classifier, $filepath);
+// $filepath = "model\\model.test";
+// $modelManager = new ModelManager();
+// $modelManager->saveToFile($classifier, $filepath);
 
 // retrieve model
 // $restoredClassifier = $modelManager->restoreFromFile($filepath);
-// $prediction = $restoredClassifier->predict($X_train);
+// $prediction = $restoredClassifier->predict(array_slice($X_test, 0, 1));
 
-// echo "<pre>";
-// print_r($prediction);
-// echo "</pre>";
+echo "<pre>";
+print_r($predictedLabelsDice);
+echo "</pre>";
+echo "<pre>";
+print_r($predictedLabelsJaccard);
+echo "</pre>";
+echo "<pre>";
+print_r($predictedLabelsCosine);
+echo "</pre>";

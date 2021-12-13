@@ -23,6 +23,7 @@ class Jaccard implements Distance
             throw InvalidArgumentException::arraySizeNotMatch();
         }
 
+        $result = 0.0;
         $numerator = 0.0;
         $denom_wkq = 0.0;
         $denom_wkj = 0.0;
@@ -36,7 +37,6 @@ class Jaccard implements Distance
         } else {
             $result = $numerator / ($denom_wkq + $denom_wkj - $numerator);
         }
-
 
         return $result;
 

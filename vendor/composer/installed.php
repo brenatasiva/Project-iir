@@ -1,22 +1,22 @@
 <?php return array(
     'root' => array(
-        'pretty_version' => '1.0.0+no-version-set',
-        'version' => '1.0.0.0',
+        'pretty_version' => 'dev-main',
+        'version' => 'dev-main',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
-        'reference' => NULL,
+        'reference' => '2ef992a302103b9fbae433015aca8a860b07658a',
         'name' => '__root__',
         'dev' => true,
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => '1.0.0+no-version-set',
-            'version' => '1.0.0.0',
+            'pretty_version' => 'dev-main',
+            'version' => 'dev-main',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
-            'reference' => NULL,
+            'reference' => '2ef992a302103b9fbae433015aca8a860b07658a',
             'dev_requirement' => false,
         ),
         'abraham/twitteroauth' => array(
@@ -152,6 +152,15 @@
             'install_path' => __DIR__ . '/../redwebcreation/twitter-stream-api',
             'aliases' => array(),
             'reference' => 'e601924d34cff206dc97de45d173d7f2bf68e2d4',
+            'dev_requirement' => false,
+        ),
+        'sastrawi/sastrawi' => array(
+            'pretty_version' => 'v1.0.0',
+            'version' => '1.0.0.0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../sastrawi/sastrawi',
+            'aliases' => array(),
+            'reference' => 'fd3cd29e46954b2c8f24dc95f029ce233871d2ef',
             'dev_requirement' => false,
         ),
         'spatie/twitter-streaming-api' => array(

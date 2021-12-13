@@ -22,7 +22,9 @@ class StemmerFactory
      */
     public function createStemmer($isDev = false)
     {
-        $stemmer    = new Stemmer($this->createDefaultDictionary($isDev));
+        $words      = $this->getWords($isDev);
+        $dictionary = new ArrayDictionary($words);
+        $stemmer    = new Stemmer($dictionary);
 
         $resultCache   = new Cache\ArrayCache();
         $cachedStemmer = new CachedStemmer($resultCache, $stemmer);
@@ -30,22 +32,12 @@ class StemmerFactory
         return $cachedStemmer;
     }
 
-    /**
-     * @return \Sastrawi\Dictionary\ArrayDictionary
-     */
-    public function createDefaultDictionary($isDev = false)
-    {
-        $words      = $this->getWords($isDev);
-        $dictionary = new ArrayDictionary($words);
-
-        return $dictionary;
-    }
-
     protected function getWords($isDev = false)
     {
         if ($isDev || !function_exists('apc_fetch')) {
             $words = $this->getWordsFromFile();
         } else {
+
             $words = apc_fetch(self::APC_KEY);
 
             if ($words === false) {
@@ -64,6 +56,6 @@ class StemmerFactory
             throw new \Exception('Dictionary file is missing. It seems that your installation is corrupted.');
         }
 
-        return explode("\n", file_get_contents($dictionaryFile));
+        return explode(PHP_EOL, file_get_contents($dictionaryFile));
     }
 }

@@ -23,13 +23,22 @@ class Cosine implements Distance
             throw InvalidArgumentException::arraySizeNotMatch();
         }
 
-        $distance = 0;
-
-        foreach ($a as $i => $val) {
-            $distance += ($val * $b[$i]);
+        $result = 0.0;
+        $numerator = 0.0;
+        $denom_wkq = 0.0;
+        $denom_wkj = 0.0;
+        for ($x = 0; $x < count($a); $x++) {
+            $numerator += $b[$x] * $a[$x];
+            $denom_wkq += pow($b[$x], 2);
+            $denom_wkj += pow($a[$x], 2);
+        }
+        if ($denom_wkq == 0.0 || $denom_wkj == 0.0) {
+            $result = 0.0;
+        } else {
+            $result = $numerator / sqrt($denom_wkq * $denom_wkj);
         }
 
-        return $distance / (count($a) * count($b));
+        return $result;
 
         // ref: https://stackoverflow.com/questions/16803289/cosine-similarity-php
     }

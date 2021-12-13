@@ -44,9 +44,4 @@ class CachedStemmer implements StemmerInterface
     {
         return $this->cache;
     }
-
-    public function getDelegatedStemmer()
-    {
-        return $this->delegatedStemmer;
-    }
 }

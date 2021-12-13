@@ -25,8 +25,8 @@ class StemmerTest extends \PHPUnit_Framework_TestCase
         $data = array();
 
         $data[] = array('kebijakan', 'bijak');
-        //$data[] = array('karyawan', 'karya');
-        //$data[] = array('karyawati', 'karya');
+        $data[] = array('karyawan', 'karya');
+        $data[] = array('karyawati', 'karya');
         $data[] = array('kinerja', 'kerja');
         $data[] = array('mengandung', 'kandung');
         $data[] = array('memakan', 'makan');
@@ -48,19 +48,6 @@ class StemmerTest extends \PHPUnit_Framework_TestCase
         $data[] = array('ditemui', 'temu');
         $data[] = array('di', 'di');
         $data[] = array('mengalahkan', 'kalah');
-        $data[] = array('melewati', 'lewat');
-        $data[] = array('bernafas', 'nafas');
-        $data[] = array('meniru-niru', 'tiru');
-        $data[] = array('memanggil-manggil', 'panggil');
-        $data[] = array('menyebut-nyebut', 'sebut');
-        $data[] = array('menganga', 'nganga');
-        $data[] = array('besaran', 'besar');
-        $data[] = array('terhenyak', 'henyak');
-        $data[] = array('mengokohkan', 'kokoh');
-        $data[] = array('melainkan', 'lain');
-        $data[] = array('kuasa-Mu', 'kuasa');
-        $data[] = array('malaikat-malaikat-Nya', 'malaikat');
-        $data[] = array('nikmat-Ku', 'nikmat');
 
         return $data;
     }

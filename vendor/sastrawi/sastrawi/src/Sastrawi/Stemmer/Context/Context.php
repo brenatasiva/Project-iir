@@ -184,6 +184,7 @@ class Context implements ContextInterface, VisitableInterface
          * Try to remove prefix before suffix if the specification is met
          */
         if ($csPrecedenceAdjustmentSpecification->isSatisfiedBy($this->getOriginalWord())) {
+
             // step 4, 5
             $this->removePrefixes();
             if ($this->dictionary->contains($this->getCurrentWord())) {
@@ -241,6 +242,7 @@ class Context implements ContextInterface, VisitableInterface
     protected function acceptVisitors(array $visitors)
     {
         foreach ($visitors as $visitor) {
+
             $this->accept($visitor);
 
             if ($this->getDictionary()->contains($this->getCurrentWord())) {
@@ -257,6 +259,7 @@ class Context implements ContextInterface, VisitableInterface
     {
         $removalCount = count($this->removals);
         foreach ($visitors as $visitor) {
+
             $this->accept($visitor);
 
             if ($this->getDictionary()->contains($this->getCurrentWord())) {

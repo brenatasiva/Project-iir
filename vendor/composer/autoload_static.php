@@ -92,6 +92,13 @@ class ComposerStaticInit3c8a283d43faa1f50c12a6c9a1594520
     );
 
     public static $prefixesPsr0 = array (
+        'S' => 
+        array (
+            'Sastrawi\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/sastrawi/sastrawi/src',
+            ),
+        ),
         'P' => 
         array (
             'Phpml' => 
